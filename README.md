@@ -2,4 +2,4 @@
 
 Prevent kerfuffles in romantic relationships.
 
-The agreement's diction is sourced from Larry David of Curb Your Enthusiasm. For the Larry David-uninitiated, **this is not serious**.
+The agreement's diction is sourced from Season 9 of Larry David's Curb Your Enthusiasm. **This is satire**.

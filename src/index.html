@@ -10,23 +10,27 @@
     <link rel="stylesheet" href="./main.sass" />
   </head>
   <body>
-    <main>
+    <main class="app-width w-full">
       <header class="text-center">
-        <noscript>This page requires JavaScript for inputs to work.</noscript>
+        <noscript class="color-red"
+          >This page requires JavaScript for inputs to work.</noscript
+        >
         <h1>Relationship Nondisclosure Agreement</h1>
       </header>
       <article>
         <section id="agreement">
           <p>
             This Confidentiality Agreement (the "<b>Agreement</b>") is made and
-            entered into as of <input type="date" class="input" />, (the "<b
+            entered into as of
+            <input type="date" class="input inline-date" />, (the "<b
               >Effective Date</b
             >") by and between
             <span
               id="principal-name"
               contenteditable="true"
               placeholder="Principal"
-              class="input"
+              class="input hide-breaks"
+              spellcheck="false"
               >Larry David</span
             >
             ("<b>Principal</b>") and
@@ -34,7 +38,8 @@
               id="partner-name"
               contenteditable="true"
               placeholder="Relationship partner"
-              class="input"
+              class="input hide-breaks"
+              spellcheck="false"
               >Bridget Wickham</span
             >
             ("<b>Relationship Partner</b>") in connection with
@@ -63,59 +68,105 @@
           </p>
         </section>
         <section id="sign">
-          <div class="flex row space-between wrap text mb-2">
-            <div class="w-half"><span class="partner-name">Partner</span></div>
+          <div class="flex row space-between align-end wrap text mb-1">
+            <div class="w-half mb-1half pr-1">
+              <span class="partner-name hide-breaks">Partner</span>
+            </div>
             <div class="w-half">
-              <div class="mb-1">
-                <div class="bottom-line sign flex">
-                  <button
-                    id="partner-sign"
-                    name="Partner signature"
-                    class="color-grey"
-                  >
-                    Click to sign
-                  </button>
-                </div>
-                <div>(Signature)</div>
+              <div class="bottom-line sign flex">
+                <button
+                  id="partner-sign"
+                  name="Partner signature"
+                  class="color-grey no-print"
+                >
+                  Click to sign
+                </button>
               </div>
+              <div>(Signature)</div>
+            </div>
+          </div>
+          <div class="flex row align-end wrap text mb-2">
+            <div class="w-half mr-auto"></div>
+            <div class="w-half">
               <div>
-                <div class="bottom-line"><input type="date" /></div>
+                <div class="bottom-line">
+                  <input
+                    type="date"
+                    class="w-full"
+                    aria-label="Partner signature date"
+                  />
+                </div>
                 <div>(Date)</div>
               </div>
             </div>
           </div>
-          <div class="flex row space-between wrap text">
-            <div class="w-half">
-              <span class="principal-name">Principal</span>
+          <div class="flex row space-between align-end wrap text mb-1">
+            <div class="w-half mb-1half pr-1">
+              <span class="principal-name hide-breaks">Principal</span>
             </div>
             <div class="w-half">
-              <div class="mb-1">
-                <div class="bottom-line sign flex">
-                  <button
-                    id="principal-sign"
-                    name="Principal signature"
-                    class="color-grey"
-                  >
-                    Click to sign
-                  </button>
-                </div>
-                <div>(Signature)</div>
+              <div class="bottom-line sign flex">
+                <button
+                  id="principal-sign"
+                  name="Principal signature"
+                  class="color-grey no-print"
+                >
+                  Click to sign
+                </button>
               </div>
-              <div>
-                <div class="bottom-line">
-                  <input type="date" class="w-full" />
-                </div>
-                <div>(Date)</div>
+              <div>(Signature)</div>
+            </div>
+          </div>
+          <div class="flex row align-end wrap text">
+            <div class="w-half"></div>
+            <div class="w-half">
+              <div class="bottom-line">
+                <input
+                  type="date"
+                  class="w-full"
+                  aria-label="Principal signature date"
+                />
               </div>
+              <div>(Date)</div>
             </div>
           </div>
         </section>
       </article>
     </main>
-    <footer class="text-center">
-      <p class="small">Sourced from Curb Your Enthusiasm</p>
+    <footer
+      class="flex row space-between align-center no-print w-full app-width"
+    >
+      <div>
+        <button id="print-page" class="flex justify-center">save</button>
+      </div>
+      <div>
+        <a
+          href="https://github.com/brettinternet/relationship-nondisclosure-agreement"
+          class="color-black button flex justify-center"
+          title="View source"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"
+            ></path>
+          </svg>
+        </a>
+      </div>
+      <div>
+        <button id="reset-values" class="flex justify-center">reset</button>
+      </div>
     </footer>
-    <div id="signature" class="modal">
+    <div id="signature" class="modal no-print">
       <div class="w-full h-full flex align-center justify-center">
         <div class="modal-body flex column w-full">
           <div class="text">Sign below</div>

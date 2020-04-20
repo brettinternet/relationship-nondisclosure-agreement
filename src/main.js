@@ -1,63 +1,119 @@
 import SignaturePad from "signature_pad";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
+import defaults from "./defaults.json";
 
 class Inputs {
-  principalName;
-  partnerName;
+  dateInputs;
+  nameInputs;
 
-  constructor() {
-    this.today = new Date();
-
-    document.querySelectorAll("input[type='date']").forEach((input) => {
-      input.value = this.getTodayValue();
+  constructor({ principalName, partnerName, dateEffective, dateSigned }) {
+    this.dateInputs = document.querySelectorAll("input[type='date']");
+    this.dateInputs.forEach((input) => {
+      input.type = "text";
+      const date = input.classList.contains("inline-date")
+        ? dateEffective
+        : dateSigned;
+      input.value = this.getReadableDate(date);
+      input.onfocus = (ev) => {
+        const value = ev.currentTarget.value;
+        input.type = "date";
+        if (value) input.value = this.getTodayValue(new Date(value));
+      };
+      input.onblur = (ev) => {
+        const value = ev.currentTarget.value;
+        input.type = "text";
+        if (value) input.value = this.getReadableDate(new Date(value));
+      };
     });
 
-    this.updateName("principal-name", "Principal");
-    this.updateName("partner-name", "Partner");
+    document
+      .getElementById("reset-values")
+      .addEventListener("click", this.resetInputs);
+
+    document
+      .getElementById("print-page")
+      .addEventListener("click", this.printPage);
+
+    const principalNameLabel = "principal-name";
+    const partnerNameLabel = "partner-name";
+
+    this.nameInputs = [
+      [
+        document.getElementById(principalNameLabel),
+        document.getElementsByClassName(principalNameLabel),
+        principalName,
+      ],
+      [
+        document.getElementById(partnerNameLabel),
+        document.getElementsByClassName(partnerNameLabel),
+        partnerName,
+      ],
+    ];
+
+    this.nameInputs.forEach(([editableInput, modifyDivs, defaultName]) => {
+      editableInput.innerText = defaultName;
+      const updateInnerText = (text) => {
+        Array.from(modifyDivs).forEach((el) => {
+          const placeholder = el.innerText;
+          el.innerText = text || defaultName;
+          el.dataset.placeholder = placeholder;
+        });
+      };
+      editableInput.addEventListener("input", (ev) => {
+        updateInnerText(ev.currentTarget.innerText);
+      });
+      updateInnerText(defaultName);
+    });
   }
 
-  updateName = (fromInputLabel, defaultValue) => {
-    const updateInnerTextClassList = document.getElementsByClassName(
-      fromInputLabel
-    );
-    const updateInnerText = (text) => {
-      Array.from(updateInnerTextClassList).forEach((el) => {
-        const value = text || defaultValue;
-        el.innerText = value;
-      });
-    };
-    document.getElementById(fromInputLabel).addEventListener("input", (ev) => {
-      updateInnerText(ev.currentTarget.innerText);
+  resetInputs = () => {
+    this.dateInputs.forEach((input) => {
+      input.value = "";
     });
-    updateInnerText(document.getElementById(fromInputLabel).innerText);
+    this.nameInputs.forEach(([editableInput, modifyDivs]) => {
+      editableInput.innerText = "";
+      Array.from(modifyDivs).forEach((el) => {
+        el.innerText = el.dataset.placeholder;
+      });
+    });
   };
 
-  getReadableDate = () =>
-    `${this.todayMonth}/${this.todayDay}/${this.today.getFullYear()}`;
+  printPage = () => {
+    window.print();
+  };
 
-  getTodayValue = () => `${this.todayYear}-${this.todayMonth}-${this.todayDay}`;
+  getReadableDate = (date) =>
+    `${this.todayMonth(date)}/${this.todayDay(date)}/${this.todayYear(date)}`;
 
-  get todayYear() {
-    return this.today.getFullYear();
-  }
+  getTodayValue = (date) =>
+    `${this.todayYear(date)}-${this.todayMonth(date, true)}-${this.todayDay(
+      date,
+      true
+    )}`;
 
-  get todayMonth() {
-    return ("0" + (this.today.getMonth() + 1)).slice(-2);
-  }
+  todayYear = (date) => {
+    return date.getFullYear();
+  };
 
-  get todayDay() {
-    return ("0" + this.today.getDate()).slice(-2);
-  }
+  todayMonth = (date, pad) => {
+    const month = date.getMonth() + 1;
+    return pad ? ("0" + month).slice(-2) : month;
+  };
+
+  todayDay = (date, pad) => {
+    const day = date.getDate();
+    return pad ? ("0" + day).slice(-2) : day;
+  };
 }
 
 class Signature {
   container;
   canvas;
   signaturePad;
-  lastSignedBy;
+  activeSignatureId;
   signatureDrawings = {};
 
-  constructor() {
+  constructor({ partnerSignature, principalSignature }) {
     this.container = document.querySelector("#signature");
     this.canvas = this.container.querySelector("canvas");
     this.signaturePad = new SignaturePad(this.canvas);
@@ -65,9 +121,19 @@ class Signature {
     window.addEventListener("resize", this.resizeCanvas);
     this.resizeCanvas();
 
-    Array.from(document.getElementsByClassName("sign")).forEach((signer) => {
-      const button = signer.getElementsByTagName("button")[0];
-      button.addEventListener("click", (ev) => this.open(ev.currentTarget.id));
+    const signButtonIds = ["partner-sign", "principal-sign"];
+    this.signButtons = signButtonIds.map((id) => document.getElementById(id));
+
+    this.setupSignButtons();
+
+    const defaultSignatures = [partnerSignature, principalSignature];
+    signButtonIds.forEach((buttonId, index) => {
+      const signatureData = defaultSignatures[index];
+      this.signatureDrawings[buttonId] = signatureData;
+      this.signaturePad.fromData(signatureData);
+      const signatureImage = this.signaturePad.toDataURL("image/svg+xml");
+      this.appendImage(signatureImage, buttonId);
+      this.clear();
     });
 
     document
@@ -79,7 +145,19 @@ class Signature {
     document
       .getElementById("save-signature")
       .addEventListener("click", this.save);
+
+    document
+      .getElementById("reset-values")
+      .addEventListener("click", this.resetSignatures);
   }
+
+  setupSignButtons = () => {
+    this.signButtons.forEach((button) => {
+      button.onclick = (ev) => {
+        this.open(ev.currentTarget.id);
+      };
+    });
+  };
 
   resizeCanvas = () => {
     const ratio = Math.max(window.devicePixelRatio || 1, 1);
@@ -90,7 +168,7 @@ class Signature {
   };
 
   open = (id) => {
-    this.lastSignedBy = id;
+    this.activeSignatureId = id;
     this.container.classList.add("active");
     this.container.addEventListener("click", () => {
       if (this.signaturePad.isEmpty()) this.close();
@@ -105,9 +183,11 @@ class Signature {
 
   save = () => {
     if (!this.signaturePad.isEmpty()) {
-      this.signatureDrawings[this.lastSignedBy] = this.signaturePad.toData();
+      this.signatureDrawings[
+        this.activeSignatureId
+      ] = this.signaturePad.toData();
       const signatureImage = this.signaturePad.toDataURL("image/svg+xml");
-      this.appendImage(signatureImage);
+      this.appendImage(signatureImage, this.activeSignatureId);
       this.clear();
       this.close();
     } else {
@@ -115,30 +195,34 @@ class Signature {
     }
   };
 
-  appendImage = (src) => {
-    const lastSignedBy = this.lastSignedBy;
-    const activator = document.getElementById(lastSignedBy);
-    const parent = activator.parentElement;
-    const button = document.createElement("button");
-    button.addEventListener("click", () => {
-      this.open(lastSignedBy);
-      this.signaturePad.fromData(this.signatureDrawings[lastSignedBy]);
-    });
+  appendImage = (src, buttonId) => {
+    const button = document.getElementById(buttonId);
+    button.classList.add("img");
+    button.onclick = () => {
+      this.open(buttonId);
+      this.signaturePad.fromData(this.signatureDrawings[buttonId]);
+    };
     const img = document.createElement("img");
-    button.id = lastSignedBy;
     img.src = src;
     img.style.width = "100%";
-    img.alt = activator.name;
+    img.alt = button.name;
+    button.innerText = "";
     button.appendChild(img);
-    parent.innerHTML = "";
-    parent.appendChild(button);
+  };
+
+  resetSignatures = () => {
+    this.setupSignButtons();
+    this.signButtons.forEach((button) => {
+      button.classList.remove("img");
+      button.innerText = "Click to sign";
+    });
   };
 
   close = () => {
     let shouldClose = true;
     if (
       !this.signaturePad.isEmpty() &&
-      !this.signatureDrawings[this.lastSignedBy]
+      !this.signatureDrawings[this.activeSignatureId]
     ) {
       shouldClose = window.confirm(
         "Are you sure you want to close without saving your signature?"
@@ -157,5 +241,13 @@ class Signature {
   };
 }
 
-new Inputs();
-new Signature();
+new Signature({
+  principalSignature: defaults.principal.signature,
+  partnerSignature: defaults.partner.signature,
+});
+new Inputs({
+  principalName: defaults.principal.name,
+  partnerName: defaults.partner.name,
+  dateEffective: new Date(),
+  dateSigned: new Date(),
+});

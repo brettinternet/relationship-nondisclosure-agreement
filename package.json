@@ -1,21 +1,20 @@
 {
   "name": "relationship-nondisclosure-agreement",
-  "version": "1.0.0",
-  "description": "To prevent kerfuffles in romantic relationship. The agreement's diction is sourced from Larry David of Curb Your Enthusiasm.",
   "main": "public/index.html",
   "scripts": {
-    "start": "parcel serve ./src/index.html",
+    "start": "parcel ./src/index.html",
     "prebuild": "npm run clean",
-    "build": "parcel build ./src/index.html",
+    "build": "parcel build ./src/index.html --out-dir public --public-url ./",
     "clean": "rimraf public",
+    "predeploy": "npm run build",
     "deploy": "gh-pages -d public"
   },
-  "author": "brettinternet",
-  "homepage": "https://github.com/brettinternet/relationship-nondisclosure-agreement#readme",
   "devDependencies": {
+    "@babel/core": "^7.9.0",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "autoprefixer": "^9.7.6",
     "gh-pages": "^2.2.0",
-    "parcel": "^2.0.0-alpha.3.2",
+    "parcel": "^1.12.4",
     "rimraf": "^3.0.2",
     "sass": "^1.26.3"
   },

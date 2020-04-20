@@ -16,16 +16,33 @@ body
 
 main
   padding: 1rem
-  max-width: 700px
-  margin: auto
   flex-grow: 1
+
+.app-width
+  margin: auto
+  max-width: 700px
 
 button
   cursor: pointer
+  background: transparent
+
+button, .button
+  border: 1px dotted #999
+
+  &.img
+    padding: 0
+    display: flex
+    border: none
 
 input
   border: none
   font-size: 16px
+  appearance: none
+
+::-webkit-datetime-edit-year-field:not([aria-valuenow]),
+::-webkit-datetime-edit-month-field:not([aria-valuenow]),
+::-webkit-datetime-edit-day-field:not([aria-valuenow])
+  color: transparent
 
 .input
   display: inline-block
@@ -33,6 +50,13 @@ input
   padding: 0 2px
   border-bottom: 1px solid #000
   margin-top: -1px
+
+input.inline-date
+  width: 180px
+
+.hide-breaks
+  br
+    display: none
 
 button, input
   border-radius: 0
@@ -54,6 +78,9 @@ p, .text
 
   &.align-center
     align-items: center
+
+  &.align-end
+    align-items: flex-end
 
   &.justify-center
     justify-content: center
@@ -79,16 +106,35 @@ p, .text
 .w-half
   width: 50%
 
+@media screen and (max-width: 450px)
+  .w-half
+    width: 100%
+
+.pr-1
+  padding-right: 1rem
+
 .mb-1
   margin-bottom: 1rem
+
+.mb-1half
+  margin-bottom: 1.5rem
 
 .mb-2
   margin-bottom: 2rem
 
-.color-grey
-  color: #555
+.mr-auto
+  margin-right: auto
 
-section
+.color-grey
+  color: grey
+
+.color-black
+  color: black
+
+.color-red
+  color: red
+
+section:first-child
   margin-bottom: 3rem
 
 section#sign
@@ -97,17 +143,17 @@ section#sign
     text-transform: uppercase
     font-size: 1.5em
 
-button
-  border: none
-  background: transparent
-
 #sign
   button, input
     width: 100%
 
-  button
+  button.signature
     padding: 0.5rem
     line-height: 2
+
+// for print
+.sign
+  min-height: 40px
 
 .bottom-line
   border-bottom: 1px solid #000
@@ -122,9 +168,11 @@ button
   bottom: 0
   left: 0
   height: 100%
+  visibility: hidden
 
   &.active
     transition: opacity 150ms
+    visibility: visible
     opacity: 1
     z-index: 1
 
@@ -152,3 +200,15 @@ button
 
     button
       padding: 0.5rem
+
+footer
+  padding: 2rem 1rem
+
+  button, a
+    width: 50px
+    padding: 0.25rem 0.5rem
+
+// source: https://stackoverflow.com/a/356123/6817437
+@media print
+  .no-print, .no-print *
+    display: none !important
