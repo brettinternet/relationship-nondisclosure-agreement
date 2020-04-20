@@ -198,6 +198,7 @@ class Signature {
   appendImage = (src, buttonId) => {
     const button = document.getElementById(buttonId);
     button.classList.add("img");
+    button.classList.remove("no-print");
     button.onclick = () => {
       this.open(buttonId);
       this.signaturePad.fromData(this.signatureDrawings[buttonId]);
@@ -213,6 +214,7 @@ class Signature {
   resetSignatures = () => {
     this.setupSignButtons();
     this.signButtons.forEach((button) => {
+      button.classList.add("no-print");
       button.classList.remove("img");
       button.innerText = "Click to sign";
     });
